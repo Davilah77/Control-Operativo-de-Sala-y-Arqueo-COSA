@@ -11,8 +11,9 @@ ejemplos excel/
 *.xlsx
 *.pdf
 *.png
+*.jpg
+*.jpeg
+*.webp
 logo.*
 .venv/
 venv/
-
-

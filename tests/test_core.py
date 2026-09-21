@@ -5,6 +5,7 @@ from core import database
 from core.dates import parse_date, to_display, to_iso
 from core.numbers import money, parse_decimal
 from modules.recaudacion import RevenueModule
+from modules.inventario_data import BODEGA, DESAYUNOS
 
 
 class CoreTests(unittest.TestCase):
@@ -68,6 +69,12 @@ class CoreTests(unittest.TestCase):
             columns = {row["name"] for row in conn.execute("PRAGMA table_info(temperaturas_buffet)")}
         self.assertIn("producto_caliente", columns)
         self.assertIn("postre_t2", columns)
+
+    def test_inventory_catalogues_are_loaded(self):
+        warehouse_items = sum(len(items) for _category, items in BODEGA)
+        breakfast_items = sum(len(items) for _category, items in DESAYUNOS)
+        self.assertEqual(warehouse_items, 56)
+        self.assertEqual(breakfast_items, 57)
 
 
 if __name__ == "__main__":

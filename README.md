@@ -10,7 +10,7 @@ Aplicación de escritorio para sustituir las hojas compartidas de LibreOffice po
 
 La base de datos es `restaurante.db`. La aplicación conserva las tablas antiguas y crea automáticamente las que falten. Conviene incluir este archivo en las copias de seguridad.
 
-La rueda de ajustes permite elegir la carpeta donde se guardan los informes. La configuración personal se guarda en `settings.json` y no se incluye en Git.
+La rueda de ajustes permite cambiar el nombre y el logo de la aplicación, ampliar el tamaño de la interfaz, elegir la carpeta de informes y activar copias automáticas de la base de datos en una carpeta sincronizada con OneDrive. La configuración personal se guarda en `settings.json` y no se incluye en Git.
 
 ## Módulos
 
@@ -22,11 +22,12 @@ Cada apartado vive en su propio archivo dentro de `modules/`:
 - `temperaturas.py`: dos controles diarios del lavavajillas y avisos APPCC.
 - `temperaturas_buffet.py`: dos muestras por producto y servicio para expositores calientes, fríos y postres.
 - `limpieza.py`: responsables de cada tarea durante la semana.
+- `inventario.py`: inventarios imprimibles de bodega y desayunos y control mensual de botellas, rellenados o vacíos.
 - `informes.py`: generación de documentos PDF.
 
 `app.py` solo construye la ventana y carga los módulos indicados en `config.json`. Para ocultar un apartado, elimina su nombre de `enabled_modules`; para recuperarlo, vuelve a añadirlo. No hace falta borrar código ni datos.
 
-Los informes se guardan en la carpeta `informes/`, que se crea automáticamente.
+Los informes y documentos de inventario se guardan en la carpeta seleccionada en Ajustes. Si se activan las copias al iniciar, la aplicación utiliza la copia local de OneDrive para que su cliente oficial realice la sincronización con la nube.
 
 ## Añadir un módulo
 

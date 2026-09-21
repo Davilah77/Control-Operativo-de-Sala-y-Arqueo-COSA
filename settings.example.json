@@ -1,4 +1,8 @@
 {
-  "reports_directory": "informes"
+  "reports_directory": "informes",
+  "app_name": "Mesa Clara",
+  "font_scale": 1.0,
+  "logo_path": "",
+  "backup_on_start": false,
+  "backup_directory": ""
 }
-

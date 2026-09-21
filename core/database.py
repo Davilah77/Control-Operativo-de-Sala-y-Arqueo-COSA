@@ -26,7 +26,7 @@ DEFAULT_CLEANING_TASKS = (
 DEFAULT_ALL_INCLUSIVE_ITEMS = (
     "Vino tinto", "Vino blanco", "Vino rosado", "Agua con gas",
     "Cerveza", "Cerveza 0,0", "Casera", "Nestea", "Aquarius",
-    "Refrescos", "Tinto de verano", "Tónica", "Zumos", "B. Monarque",
+    "Refrescos", "Tinto de verano", "Tónica", "Zumos", "Botella de agua",
 )
 
 

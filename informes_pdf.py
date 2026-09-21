@@ -1,15 +1,17 @@
 from calendar import monthrange
 from datetime import timedelta
+from html import escape
 from pathlib import Path
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A3, A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from core.database import connect
 from core.dates import parse_date, to_display
+from core.settings import app_name, logo_path
 
 
 BLUE = colors.HexColor("#1A365D")
@@ -33,7 +35,19 @@ def _document(path, title, subtitle, *, pagesize=A4, margins=14 * mm):
         "ReportTitle", parent=styles["Heading1"], fontSize=16, leading=20,
         textColor=BLUE, alignment=1, spaceAfter=5,
     )
-    story = [Paragraph(title, title_style), Paragraph(subtitle, ParagraphStyle("Subtitle", parent=styles["Normal"], alignment=1, fontSize=10)), Spacer(1, 8)]
+    story = []
+    logo = logo_path()
+    if logo and logo.is_file():
+        story.extend([Image(str(logo), width=17 * mm, height=17 * mm), Spacer(1, 2)])
+    story.append(Paragraph(
+        escape(app_name()),
+        ParagraphStyle("Brand", parent=styles["Heading2"], fontSize=12, leading=14, textColor=BLUE, alignment=1, spaceAfter=3),
+    ))
+    story.extend([
+        Paragraph(escape(title), title_style),
+        Paragraph(escape(subtitle), ParagraphStyle("Subtitle", parent=styles["Normal"], alignment=1, fontSize=10)),
+        Spacer(1, 8),
+    ])
     return path, doc, story
 
 
@@ -56,7 +70,7 @@ def _styled_table(data, widths=None, font_size=8, repeat_rows=1):
 
 def generar_pdf_recaudacion_mensual(mes, anio, archivo_salida):
     path, doc, story = _document(
-        archivo_salida, "RECAUDACIÓN - MESA CLARA", f"Periodo: {mes:02d}/{anio}",
+        archivo_salida, "RECAUDACIÓN", f"Periodo: {mes:02d}/{anio}",
         pagesize=A4, margins=12 * mm,
     )
     with connect() as conn:
@@ -178,7 +192,7 @@ def generar_pdf_limpieza_semanal(fecha_semana, archivo_salida):
     monday = selected - timedelta(days=selected.weekday())
     sunday = monday + timedelta(days=6)
     path, doc, story = _document(
-        archivo_salida, "REGISTRO DE LIMPIEZA - MESA CLARA",
+        archivo_salida, "REGISTRO DE LIMPIEZA",
         f"Semana del {monday:%d/%m/%Y} al {sunday:%d/%m/%Y}", pagesize=landscape(A3),
     )
     dates = [(monday + timedelta(days=index)).isoformat() for index in range(7)]

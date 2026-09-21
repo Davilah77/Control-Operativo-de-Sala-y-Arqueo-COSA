@@ -1,5 +1,6 @@
 from modules.arqueo import build_arqueo
 from modules.informes import build_informes
+from modules.inventario import build_inventario
 from modules.limpieza import build_limpieza
 from modules.recaudacion import build_recaudacion
 from modules.temperaturas import build_temperaturas
@@ -18,6 +19,7 @@ AVAILABLE_MODULES = {
         ModuleDefinition("temperaturas", "🌡️ Temperaturas", build_temperaturas),
         ModuleDefinition("temperaturas_buffet", "🍽️ Temp. buffet", build_temperaturas_buffet),
         ModuleDefinition("limpieza", "🧼 Limpieza", build_limpieza),
+        ModuleDefinition("inventario", "📦 Inventario", build_inventario),
         ModuleDefinition("informes", "📊 Informes", build_informes),
     )
 }
