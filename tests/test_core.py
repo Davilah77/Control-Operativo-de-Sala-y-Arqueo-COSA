@@ -1,7 +1,9 @@
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from core import database
+from core.settings import appearance_mode
 from core.dates import parse_date, to_display, to_iso
 from core.numbers import money, parse_decimal
 from modules.recaudacion import RevenueModule
@@ -77,6 +79,12 @@ class CoreTests(unittest.TestCase):
         breakfast_items = sum(len(items) for _category, items in DESAYUNOS)
         self.assertEqual(warehouse_items, 56)
         self.assertEqual(breakfast_items, 57)
+
+    def test_appearance_mode_accepts_only_light_or_dark(self):
+        with patch("core.settings.load_settings", return_value={"appearance_mode": "Light"}):
+            self.assertEqual(appearance_mode(), "Light")
+        with patch("core.settings.load_settings", return_value={"appearance_mode": "unexpected"}):
+            self.assertEqual(appearance_mode(), "Dark")
 
 
 if __name__ == "__main__":

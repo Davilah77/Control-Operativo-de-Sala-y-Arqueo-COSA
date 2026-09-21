@@ -4,5 +4,6 @@
   "font_scale": 1.0,
   "logo_path": "",
   "backup_on_start": false,
-  "backup_directory": ""
+  "backup_directory": "",
+  "appearance_mode": "Dark"
 }

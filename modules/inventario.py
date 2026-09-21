@@ -13,6 +13,7 @@ MONTHS = [
     "07 - Julio", "08 - Agosto", "09 - Septiembre", "10 - Octubre", "11 - Noviembre", "12 - Diciembre",
 ]
 FORM_TYPES = ("Inventario de bodega", "Inventario de desayunos", "Recaudación de botellas")
+TABLE_SURFACE = ("gray86", "gray17")
 
 
 def build_inventario(parent, _app) -> None:
@@ -92,7 +93,10 @@ class InventoryModule:
         self.form.grid_columnconfigure(1, weight=1)
         headers = ("Código", "Artículo", "Cantidad", "Unidad")
         for column, label in enumerate(headers):
-            ctk.CTkLabel(self.form, text=label, font=ctk.CTkFont(weight="bold"), anchor="w").grid(row=0, column=column, sticky="ew", padx=5, pady=(4, 8))
+            ctk.CTkLabel(
+                self.form, text=label, font=ctk.CTkFont(weight="bold"),
+                anchor="w", fg_color=TABLE_SURFACE,
+            ).grid(row=0, column=column, sticky="ew", padx=5, pady=(4, 8))
         row = 1
         for category, items in catalogue:
             ctk.CTkLabel(
@@ -101,11 +105,17 @@ class InventoryModule:
             ).grid(row=row, column=0, columnspan=4, sticky="ew", padx=3, pady=(9, 4), ipady=4)
             row += 1
             for product_id, code, item, unit in items:
-                ctk.CTkLabel(self.form, text=code or "—", width=90).grid(row=row, column=0, padx=5, pady=2)
-                ctk.CTkLabel(self.form, text=item, anchor="w").grid(row=row, column=1, sticky="ew", padx=5, pady=2)
+                ctk.CTkLabel(
+                    self.form, text=code or "—", width=90, fg_color=TABLE_SURFACE,
+                ).grid(row=row, column=0, padx=5, pady=2)
+                ctk.CTkLabel(
+                    self.form, text=item, anchor="w", fg_color=TABLE_SURFACE,
+                ).grid(row=row, column=1, sticky="ew", padx=5, pady=2)
                 variable = ctk.StringVar(value=preserved_values.get(product_id, ""))
                 ctk.CTkEntry(self.form, textvariable=variable, width=105, justify="center").grid(row=row, column=2, padx=5, pady=2)
-                ctk.CTkLabel(self.form, text=unit, width=95, anchor="w").grid(row=row, column=3, padx=5, pady=2)
+                ctk.CTkLabel(
+                    self.form, text=unit, width=95, anchor="w", fg_color=TABLE_SURFACE,
+                ).grid(row=row, column=3, padx=5, pady=2)
                 self.entries[product_id] = variable
                 row += 1
 

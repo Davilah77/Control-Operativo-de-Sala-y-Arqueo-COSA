@@ -8,6 +8,7 @@ from core.dates import parse_date, today_display
 
 
 DAYS = ("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
+TABLE_SURFACE = ("gray86", "gray17")
 
 
 def build_limpieza(parent, _app) -> None:
@@ -42,6 +43,7 @@ class CleaningModule:
             ctk.CTkLabel(
                 self.grid_frame, text=header, width=width,
                 font=ctk.CTkFont(size=11, weight="bold"),
+                fg_color=TABLE_SURFACE,
             ).grid(row=0, column=column, padx=2, pady=5, sticky="ew")
 
         with connect() as conn:
@@ -49,12 +51,18 @@ class CleaningModule:
                 "SELECT id,nombre,turno FROM tareas_limpieza WHERE activo=1 ORDER BY orden,nombre"
             ).fetchall()
         for row_index, task in enumerate(self.tasks, start=1):
-            ctk.CTkLabel(self.grid_frame, text=task["nombre"], anchor="w", width=235).grid(row=row_index, column=0, padx=3, pady=3, sticky="ew")
+            ctk.CTkLabel(
+                self.grid_frame, text=task["nombre"], anchor="w", width=235,
+                fg_color=TABLE_SURFACE,
+            ).grid(row=row_index, column=0, padx=3, pady=3, sticky="ew")
             for day_index in range(7):
                 variable = ctk.StringVar()
                 ctk.CTkEntry(self.grid_frame, textvariable=variable, width=88).grid(row=row_index, column=day_index + 1, padx=2, pady=3)
                 self.entries[(task["id"], day_index)] = variable
-            ctk.CTkLabel(self.grid_frame, text=task["turno"], width=125, wraplength=120).grid(row=row_index, column=8, padx=3, pady=3)
+            ctk.CTkLabel(
+                self.grid_frame, text=task["turno"], width=125, wraplength=120,
+                fg_color=TABLE_SURFACE,
+            ).grid(row=row_index, column=8, padx=3, pady=3)
 
         note_frame = ctk.CTkFrame(self.parent, fg_color="transparent")
         note_frame.pack(fill="x", padx=12, pady=(2, 8))
@@ -114,4 +122,3 @@ class CleaningModule:
             self.load_week()
         except Exception as exc:
             messagebox.showerror("No se pudo guardar", str(exc))
-

@@ -9,6 +9,7 @@ from core.database import initialize_database
 from core.paths import APP_DIR
 from core.settings import (
     app_name,
+    appearance_mode,
     backup_directory,
     detected_onedrive_directory,
     font_scale,
@@ -20,7 +21,7 @@ from core.settings import (
 from modules.registry import AVAILABLE_MODULES
 
 
-ctk.set_appearance_mode("Dark")
+ctk.set_appearance_mode(appearance_mode())
 ctk.set_default_color_theme("blue")
 ctk.set_widget_scaling(font_scale())
 
@@ -65,7 +66,10 @@ class MesaClaraApp(ctk.CTk):
         ).pack(anchor="w")
 
         self.theme_switch = ctk.CTkSwitch(header, text="Modo oscuro", command=self._toggle_theme)
-        self.theme_switch.select()
+        if appearance_mode() == "Dark":
+            self.theme_switch.select()
+        else:
+            self.theme_switch.deselect()
         self.theme_switch.pack(side="right", padx=(8, 18))
         ctk.CTkButton(
             header, text="⚙", width=42, height=36, font=ctk.CTkFont(size=20),
@@ -120,7 +124,9 @@ class MesaClaraApp(ctk.CTk):
             ).pack(pady=40)
 
     def _toggle_theme(self) -> None:
-        ctk.set_appearance_mode("Dark" if self.theme_switch.get() else "Light")
+        mode = "Dark" if self.theme_switch.get() else "Light"
+        ctk.set_appearance_mode(mode)
+        save_settings({**load_settings(), "appearance_mode": mode})
 
     def _refresh_branding(self) -> None:
         name = app_name()

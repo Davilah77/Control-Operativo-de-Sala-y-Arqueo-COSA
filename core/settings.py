@@ -12,6 +12,7 @@ DEFAULT_SETTINGS = {
     "logo_path": "",
     "backup_on_start": False,
     "backup_directory": "",
+    "appearance_mode": "Dark",
 }
 
 
@@ -47,6 +48,11 @@ def font_scale() -> float:
         return min(1.5, max(0.8, float(load_settings().get("font_scale", 1.0))))
     except (TypeError, ValueError):
         return 1.0
+
+
+def appearance_mode() -> str:
+    value = str(load_settings().get("appearance_mode", "Dark")).strip().lower()
+    return "Light" if value == "light" else "Dark"
 
 
 def logo_path() -> Path | None:

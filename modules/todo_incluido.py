@@ -12,6 +12,7 @@ MONTHS = [
     "01 - Enero", "02 - Febrero", "03 - Marzo", "04 - Abril", "05 - Mayo", "06 - Junio",
     "07 - Julio", "08 - Agosto", "09 - Septiembre", "10 - Octubre", "11 - Noviembre", "12 - Diciembre",
 ]
+TABLE_SURFACE = ("gray86", "gray17")
 
 
 def build_todo_incluido(parent, _app) -> None:
@@ -42,9 +43,16 @@ class AllInclusiveModule:
 
         self.grid_frame = ctk.CTkScrollableFrame(self.parent, orientation="horizontal", fg_color="transparent")
         self.grid_frame.pack(fill="both", expand=True, padx=10, pady=5)
-        ctk.CTkLabel(self.grid_frame, text="Artículo", width=155, anchor="w", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, sticky="ew", padx=4, pady=6)
+        ctk.CTkLabel(
+            self.grid_frame, text="Artículo", width=155, anchor="w",
+            font=ctk.CTkFont(weight="bold"), fg_color=TABLE_SURFACE,
+        ).grid(row=0, column=0, sticky="ew", padx=4, pady=6)
         for day in range(1, 32):
-            header = ctk.CTkLabel(self.grid_frame, text=str(day), width=42, font=ctk.CTkFont(weight="bold"), corner_radius=5)
+            header = ctk.CTkLabel(
+                self.grid_frame, text=str(day), width=42,
+                font=ctk.CTkFont(weight="bold"), corner_radius=5,
+                fg_color=TABLE_SURFACE,
+            )
             header.grid(row=0, column=day, padx=1, pady=6)
             self.day_headers[day] = header
         ctk.CTkLabel(
@@ -58,7 +66,10 @@ class AllInclusiveModule:
                 "SELECT id,nombre FROM articulos_todo_incluido WHERE activo=1 ORDER BY orden,nombre"
             ).fetchall()
         for row_index, article in enumerate(self.articles, start=1):
-            ctk.CTkLabel(self.grid_frame, text=article["nombre"], width=155, anchor="w").grid(row=row_index, column=0, sticky="ew", padx=4, pady=3)
+            ctk.CTkLabel(
+                self.grid_frame, text=article["nombre"], width=155,
+                anchor="w", fg_color=TABLE_SURFACE,
+            ).grid(row=row_index, column=0, sticky="ew", padx=4, pady=3)
             for day in range(1, 32):
                 variable = ctk.StringVar(value="")
                 entry = ctk.CTkEntry(self.grid_frame, textvariable=variable, width=42, height=28, justify="center")
@@ -117,7 +128,7 @@ class AllInclusiveModule:
                 elif saved_per_day[day] > 0:
                     header.configure(fg_color="#B7791F", text_color="white")
                 else:
-                    header.configure(fg_color="transparent", text_color=("gray10", "gray90"))
+                    header.configure(fg_color=TABLE_SURFACE, text_color=("gray10", "gray90"))
             for article_id, label in self.total_labels.items():
                 label.configure(text=str(totals[article_id]))
         except Exception as exc:
