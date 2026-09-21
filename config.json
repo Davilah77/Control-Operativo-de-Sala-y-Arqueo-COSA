@@ -1,0 +1,11 @@
+{
+  "enabled_modules": [
+    "arqueo",
+    "recaudacion",
+    "todo_incluido",
+    "temperaturas",
+    "temperaturas_buffet",
+    "limpieza",
+    "informes"
+  ]
+}
