@@ -41,8 +41,10 @@ class CoreTests(unittest.TestCase):
         with database.connect() as conn:
             article_count = conn.execute("SELECT COUNT(*) FROM articulos_todo_incluido").fetchone()[0]
             task_count = conn.execute("SELECT COUNT(*) FROM tareas_limpieza").fetchone()[0]
+            inventory_count = conn.execute("SELECT COUNT(*) FROM inventario_productos").fetchone()[0]
         self.assertEqual(article_count, len(database.DEFAULT_ALL_INCLUSIVE_ITEMS))
         self.assertEqual(task_count, len(database.DEFAULT_CLEANING_TASKS))
+        self.assertEqual(inventory_count, sum(len(items) for _category, items in BODEGA + DESAYUNOS))
 
     def test_revenue_uses_each_service_price_and_counts_menus(self):
         bases = {

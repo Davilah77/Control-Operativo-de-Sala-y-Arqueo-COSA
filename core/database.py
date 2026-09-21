@@ -2,6 +2,7 @@ import sqlite3
 from contextlib import contextmanager
 
 from core.paths import DB_PATH
+from modules.inventario_data import BODEGA, DESAYUNOS
 
 
 DEFAULT_CLEANING_TASKS = (
@@ -164,6 +165,24 @@ def initialize_database() -> None:
                 observaciones TEXT DEFAULT '',
                 UNIQUE(fecha, servicio)
             );
+
+            CREATE TABLE IF NOT EXISTS inventario_categorias (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tipo TEXT NOT NULL,
+                nombre TEXT NOT NULL,
+                orden INTEGER NOT NULL DEFAULT 0,
+                UNIQUE(tipo, nombre)
+            );
+
+            CREATE TABLE IF NOT EXISTS inventario_productos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                categoria_id INTEGER NOT NULL REFERENCES inventario_categorias(id) ON DELETE CASCADE,
+                codigo TEXT NOT NULL DEFAULT '',
+                nombre TEXT NOT NULL,
+                unidad TEXT NOT NULL DEFAULT 'UNIDADES',
+                activo INTEGER NOT NULL DEFAULT 1,
+                orden INTEGER NOT NULL DEFAULT 0
+            );
             """
         )
         _ensure_column(conn, "temperaturas_lavavajillas", "responsable", "TEXT")
@@ -184,10 +203,12 @@ def initialize_database() -> None:
         for column, definition in revenue_columns:
             _ensure_column(conn, "recaudacion_diaria", column, definition)
         _migrate_revenue_v2(conn)
+        _seed_inventory_catalogue(conn)
         conn.executemany(
             "INSERT OR IGNORE INTO articulos_todo_incluido(nombre, orden) VALUES (?, ?)",
             ((name, index) for index, name in enumerate(DEFAULT_ALL_INCLUSIVE_ITEMS)),
         )
+        _migrate_neutral_all_inclusive_item(conn)
         conn.executemany(
             "INSERT OR IGNORE INTO tareas_limpieza(nombre, turno, orden) VALUES (?, ?, ?)",
             ((name, shift, index) for index, (name, shift) in enumerate(DEFAULT_CLEANING_TASKS)),
@@ -217,3 +238,52 @@ def _migrate_revenue_v2(conn: sqlite3.Connection) -> None:
     conn.execute(
         "INSERT INTO app_metadata(clave,valor) VALUES ('revenue_v2_migrated','1')"
     )
+
+
+def _seed_inventory_catalogue(conn: sqlite3.Connection) -> None:
+    seeded = conn.execute(
+        "SELECT 1 FROM app_metadata WHERE clave='inventory_catalogue_seeded'"
+    ).fetchone()
+    if seeded:
+        return
+    for inventory_type, catalogue in (("bodega", BODEGA), ("desayunos", DESAYUNOS)):
+        for category_order, (category_name, products) in enumerate(catalogue):
+            conn.execute(
+                "INSERT OR IGNORE INTO inventario_categorias(tipo,nombre,orden) VALUES (?,?,?)",
+                (inventory_type, category_name, category_order),
+            )
+            category_id = conn.execute(
+                "SELECT id FROM inventario_categorias WHERE tipo=? AND nombre=?",
+                (inventory_type, category_name),
+            ).fetchone()[0]
+            conn.executemany(
+                """INSERT INTO inventario_productos(categoria_id,codigo,nombre,unidad,orden)
+                VALUES (?,?,?,?,?)""",
+                ((category_id, code, name, unit, product_order) for product_order, (code, name, unit) in enumerate(products)),
+            )
+    conn.execute(
+        "INSERT INTO app_metadata(clave,valor) VALUES ('inventory_catalogue_seeded','1')"
+    )
+
+
+def _migrate_neutral_all_inclusive_item(conn: sqlite3.Connection) -> None:
+    old = conn.execute("SELECT id FROM articulos_todo_incluido WHERE nombre='B. Monarque'").fetchone()
+    if old is None:
+        return
+    new = conn.execute("SELECT id FROM articulos_todo_incluido WHERE nombre='Botella de agua'").fetchone()
+    if new is None:
+        conn.execute(
+            "UPDATE articulos_todo_incluido SET nombre='Botella de agua' WHERE id=?",
+            (old["id"],),
+        )
+        return
+    for row in conn.execute(
+        "SELECT fecha,cantidad FROM consumos_todo_incluido WHERE articulo_id=?", (old["id"],)
+    ).fetchall():
+        conn.execute(
+            """INSERT INTO consumos_todo_incluido(fecha,articulo_id,cantidad) VALUES (?,?,?)
+            ON CONFLICT(fecha,articulo_id) DO UPDATE SET cantidad=cantidad+excluded.cantidad""",
+            (row["fecha"], new["id"], row["cantidad"]),
+        )
+    conn.execute("DELETE FROM consumos_todo_incluido WHERE articulo_id=?", (old["id"],))
+    conn.execute("DELETE FROM articulos_todo_incluido WHERE id=?", (old["id"],))

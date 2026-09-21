@@ -22,7 +22,7 @@ Cada apartado vive en su propio archivo dentro de `modules/`:
 - `temperaturas.py`: dos controles diarios del lavavajillas y avisos APPCC.
 - `temperaturas_buffet.py`: dos muestras por producto y servicio para expositores calientes, fríos y postres.
 - `limpieza.py`: responsables de cada tarea durante la semana.
-- `inventario.py`: inventarios imprimibles de bodega y desayunos y control mensual de botellas, rellenados o vacíos.
+- `inventario.py`: inventarios imprimibles de bodega y desayunos y control mensual de botellas, rellenados o vacíos. El botón **Gestionar productos** permite añadir, modificar y eliminar artículos y códigos sin tocar el código.
 - `informes.py`: generación de documentos PDF.
 
 `app.py` solo construye la ventana y carga los módulos indicados en `config.json`. Para ocultar un apartado, elimina su nombre de `enabled_modules`; para recuperarlo, vuelve a añadirlo. No hace falta borrar código ni datos.
@@ -36,6 +36,8 @@ Los informes y documentos de inventario se guardan en la carpeta seleccionada en
 3. Añade su identificador a `config.json`.
 
 Las rutas, fechas, números y acceso a la base de datos están centralizados en `core/` para que todos los módulos se comporten igual.
+
+Los módulos se cargan únicamente cuando se abre su pestaña por primera vez. Esto reduce el tiempo de arranque y evita crear de golpe centenares de casillas que quizá no se usarán durante esa sesión.
 
 ## Privacidad y Git
 

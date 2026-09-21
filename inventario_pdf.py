@@ -66,11 +66,11 @@ def generar_pdf_inventario(title, catalogue, values, output_path, *, empty=False
     )
     cell_style = ParagraphStyle("InventoryCell", parent=styles["BodyText"], fontSize=7.5, leading=8.5)
     story = _header_story(title)
-    for category_index, (category, items) in enumerate(catalogue):
+    for category, items in catalogue:
         story.append(Paragraph(escape(category), section_style))
         rows = [["CÓDIGO", "ARTÍCULO", "CANTIDAD", "UNIDAD"]]
-        for item_index, (code, item, unit) in enumerate(items):
-            quantity = "" if empty else str(values.get((category_index, item_index), "")).strip()
+        for product_id, code, item, unit in items:
+            quantity = "" if empty else str(values.get(product_id, "")).strip()
             rows.append([code, Paragraph(escape(item), cell_style), quantity, unit])
         story.append(_inventory_table(rows))
     doc.build(story)

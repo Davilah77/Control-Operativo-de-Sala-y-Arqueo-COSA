@@ -81,25 +81,43 @@ class MesaClaraApp(ctk.CTk):
             messagebox.showwarning("Configuración", f"Se usará la configuración predeterminada.\n\n{exc}")
             enabled = list(AVAILABLE_MODULES)
 
-        self.tabs = ctk.CTkTabview(self, corner_radius=10)
+        self.tabs = ctk.CTkTabview(self, corner_radius=10, command=self._on_tab_changed)
         self.tabs.pack(fill="both", expand=True, padx=15, pady=10)
         self.module_controllers = {}
-        loaded = 0
+        self.module_definitions = {}
+        self.tab_module_ids = {}
         for module_id in enabled:
             definition = AVAILABLE_MODULES.get(module_id)
             if definition is None:
                 continue
-            tab = self.tabs.add(definition.title)
-            try:
-                definition.builder(tab, self)
-                self.module_controllers[module_id] = getattr(tab, "_controller", None)
-                loaded += 1
-            except Exception as exc:
-                ctk.CTkLabel(
-                    tab, text=f"No se pudo cargar este módulo:\n{exc}", text_color="#FF6B6B"
-                ).pack(pady=40)
-        if not loaded:
+            self.tabs.add(definition.title)
+            self.module_definitions[module_id] = definition
+            self.tab_module_ids[definition.title] = module_id
+        if not self.module_definitions:
             messagebox.showerror("Configuración", "No hay módulos válidos habilitados en config.json.")
+            return
+        first_module = next(iter(self.module_definitions))
+        self.tabs.set(self.module_definitions[first_module].title)
+        self._load_module(first_module)
+
+    def _on_tab_changed(self) -> None:
+        module_id = self.tab_module_ids.get(self.tabs.get())
+        if module_id:
+            self._load_module(module_id)
+
+    def _load_module(self, module_id: str) -> None:
+        if module_id in self.module_controllers:
+            return
+        definition = self.module_definitions[module_id]
+        tab = self.tabs.tab(definition.title)
+        self.module_controllers[module_id] = None
+        try:
+            definition.builder(tab, self)
+            self.module_controllers[module_id] = getattr(tab, "_controller", None)
+        except Exception as exc:
+            ctk.CTkLabel(
+                tab, text=f"No se pudo cargar este módulo:\n{exc}", text_color="#FF6B6B"
+            ).pack(pady=40)
 
     def _toggle_theme(self) -> None:
         ctk.set_appearance_mode("Dark" if self.theme_switch.get() else "Light")
